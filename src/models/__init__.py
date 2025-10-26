@@ -1,5 +1,6 @@
 # Exportar 
 
 from .datos_preprocesados import PreprocesamientoDatos
-__all__ = ['PreprocesamientoDatos']
+from .clasificador_bayesiano import ClasificadorBayesiano
+__all__ = ['PreprocesamientoDatos', 'ClasificadorBayesiano']
 

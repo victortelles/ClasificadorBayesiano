@@ -140,3 +140,69 @@ class ClasificadorBayesiano:
 
         # Retorna la probabilidad conjunta o 0 si no existe
         return self.probabilidades_conjuntas[clase].get(combinacion, 0)
+
+    def calcular_probabilidad_evidencia(self, edad_bin, ingreso_bin):
+        """ Metodo para calcular la probabilidad de la evidencia P(x) para una combinación de bins.
+        P(x) = sum_c_{camina, conduce} [ P(x|C) * P(C) ]
+        """
+        # Verificar que las probabilidades a priori y conjuntas estén calculadas
+        if not self.probabilidades_priori or not hasattr(self, 'probabilidades_conjuntas'):
+            print("Error: Primero debes calcular las probabilidades a priori y conjuntas.")
+            return 0
+
+        # Inicializar P(x)
+        px = 0
+
+        print(f"\n=== CALCULO DE EVIDENCIA P(x) PARA (Edad_bin={edad_bin}, Ingreso_bin={ingreso_bin}) ===")
+        # Iterar sobre cada clase para calcular la suma
+        for clase in self.clases_unicas:
+            # Obtener P(x|C) y P(C)
+            # P(x|C) = P(Edad_bin, Ingreso_bin | Clase)
+            p_x_dado_c = self.obtener_probabilidad_conjunta(edad_bin, ingreso_bin, clase)
+            # P(C) = probabilidad a priori de la clase
+            p_c = self.probabilidades_priori[clase]
+            # Sumar al total P(x) = P(x|C) * P(C)
+            producto = p_x_dado_c * p_c
+            px += producto
+            print(f"  P(x|{clase}) = {p_x_dado_c:.4f}  |  P({clase}) = {p_c:.4f}  |  Producto = {producto:.4f}")
+        print(f"\n  P(x) = {px:.4f}\n")
+        return px
+
+    def predecir_clase(self, edad_bin, ingreso_bin):
+        """Predecir la clase (Camina o Conduce) para combinación de bins usando el Teorema de Bayes
+        P(C|x) = [ P(x|C) * P(C) ] / P(x)
+        """
+
+        print(f"\n=== PREDICCIÓN DE CLASE PARA (Edad_bin={edad_bin}, Ingreso_bin={ingreso_bin}) ===")
+
+        # Calcular la evidencia P(x)
+        p_x = self.calcular_probabilidad_evidencia(edad_bin, ingreso_bin)
+
+        # Diccionario = guardar las probabilidades posteriores P(C|x)
+        probabilidades_posteriores = {}
+
+        # Calcular P(C|x) para cada clase
+        for clase in self.clases_unicas:
+            # Obtener P(x|C) y P(C)
+            p_x_dado_c = self.obtener_probabilidad_conjunta(edad_bin, ingreso_bin, clase)
+            p_c = self.probabilidades_priori[clase]
+
+            # Aplicar el Teorema de Bayes
+            if p_x > 0:
+                # P(C|x) = [ P(x|C) * P(C) ] / P(x)
+                p_c_dado_x = (p_x_dado_c * p_c) / p_x
+            else:
+                p_c_dado_x = 0
+
+            # Guardar la probabilidad posterior
+            probabilidades_posteriores[clase] = p_c_dado_x
+
+            print(f"  P({clase}|x) = [ {p_x_dado_c:.4f} * {p_c:.4f} ] / {p_x:.4f} = {p_c_dado_x:.4f}")
+
+        # Determinar la clase con la mayor probabilidad posterior
+        clase_predicha = max(probabilidades_posteriores, key=probabilidades_posteriores.get)
+        probabilidad_maxima = probabilidades_posteriores[clase_predicha]
+
+        print(f"\nClase predicha: {clase_predicha} con probabilidad {probabilidad_maxima:.4f}\n")
+
+        return clase_predicha, probabilidad_maxima

@@ -89,24 +89,30 @@ class ClasificadorBayesiano:
 
             print(f"Combinaciones encontradas: {len(tabla_frecuencias)}")
 
-            # Calcular probabilidades para cada combinación
-            self.probabilidades_conjuntas[clase] = {}
+            # Calcular el número total de combinaciones posibles (bins de edad x bins de ingreso)
+            num_bins_edad = df_entrenamiento['Edad_bin'].nunique()
+            num_bins_ingreso = df_entrenamiento['Ingreso_bin'].nunique()
+            num_combinaciones_posibles = num_bins_edad * num_bins_ingreso
 
-            # Se itera sobre cada fila de la tabla de frecuencias
+            # Inicializar todas las combinaciones posibles con frecuencia 0
+            self.probabilidades_conjuntas[clase] = {}
+            for edad_bin in range(num_bins_edad):
+                for ingreso_bin in range(num_bins_ingreso):
+                    self.probabilidades_conjuntas[clase][(edad_bin, ingreso_bin)] = 0
+
+            # Actualizar frecuencias reales
             for _, fila in tabla_frecuencias.iterrows():
                 edad_bin = fila['Edad_bin']
                 ingreso_bin = fila['Ingreso_bin']
                 frecuencia = fila['Frecuencia']
+                self.probabilidades_conjuntas[clase][(edad_bin, ingreso_bin)] = frecuencia
 
-                # Calcular P(Edad_bin, Ingreso_bin | Clase)
-                probabilidad = frecuencia / total_clase
-
-                # Tupla como clave para la combinación
-                combinacion = (edad_bin, ingreso_bin)
+            # Calcular probabilidades con suavizado de Laplace
+            for combinacion in self.probabilidades_conjuntas[clase]:
+                frecuencia = self.probabilidades_conjuntas[clase][combinacion]
+                probabilidad = (frecuencia + 1) / (total_clase + num_combinaciones_posibles)
                 self.probabilidades_conjuntas[clase][combinacion] = probabilidad
-
-                # P(Edad_bin, Ingreso_bin | Clase) = frecuencia_de_combinacion(i,j,c) / total_de_clase_c = probabilidad
-                print(f"  P(Edad_bin={edad_bin}, Ingreso_bin={ingreso_bin} | {clase}) = {frecuencia}/{total_clase} = {probabilidad:.4f}")
+                print(f"  P(Edad_bin={combinacion[0]}, Ingreso_bin={combinacion[1]} | {clase}) = ({frecuencia}+1)/({total_clase}+{num_combinaciones_posibles}) = {probabilidad:.4f}")
 
         return self.probabilidades_conjuntas
 

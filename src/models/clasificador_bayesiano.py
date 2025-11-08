@@ -2,30 +2,6 @@ import pandas as pd
 import numpy as np
 
 class ClasificadorBayesiano:
-
-    # def obtener_tabla_evidencia(self, edad_bin, ingreso_bin):
-    #     """Devuelve un DataFrame con el cálculo paso a paso de la evidencia P(x) para una combinación de bins, usando la probabilidad empírica (sin Laplace)."""
-    #     import pandas as pd
-    #     if self.datos_entrenamiento is None or not self.probabilidades_priori:
-    #         print("Error: Primero debes entrenar el clasificador y calcular las probabilidades a priori.")
-    #         return None, None
-    #     clases = self.datos_entrenamiento['Clase'].unique()
-    #     resultados = []
-    #     for clase in clases:
-    #         total_clase = len(self.datos_entrenamiento[self.datos_entrenamiento['Clase'] == clase])
-    #         frecuencia = len(self.datos_entrenamiento[(self.datos_entrenamiento['Edad_bin'] == edad_bin) & (self.datos_entrenamiento['Ingreso_bin'] == ingreso_bin) & (self.datos_entrenamiento['Clase'] == clase)])
-    #         p_x_c = frecuencia / total_clase if total_clase > 0 else 0
-    #         p_c = self.probabilidades_priori[clase]
-    #         producto = p_x_c * p_c
-    #         resultados.append({
-    #             'Clase': clase,
-    #             'P(x|C)': p_x_c,
-    #             'P(C)': p_c,
-    #             'P(x|C)*P(C)': producto
-    #         })
-    #     df_evidencia = pd.DataFrame(resultados)[['Clase', 'P(x|C)', 'P(C)', 'P(x|C)*P(C)']]
-    #     p_x = df_evidencia['P(x|C)*P(C)'].sum()
-    #     return df_evidencia, p_x
     """Clasificador bayesiano implementado manualmente usando el Teorema de Bayes"""
 
     def __init__(self):

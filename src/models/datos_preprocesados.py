@@ -42,7 +42,7 @@ class PreprocesamientoDatos:
             include_lowest=True
         )
 
-        # conversion a enteros para evitar problemas con categorías
+        # conversion a enteros para evitar problemas con categorias
         df_procesado['Edad_bin'] = df_procesado['Edad_bin'].astype(int)
         df_procesado['Ingreso_bin'] = df_procesado['Ingreso_bin'].astype(int)
 
